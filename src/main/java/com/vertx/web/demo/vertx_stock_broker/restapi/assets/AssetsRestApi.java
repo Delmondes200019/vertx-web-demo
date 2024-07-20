@@ -1,9 +1,9 @@
 package com.vertx.web.demo.vertx_stock_broker.restapi.assets;
 
+import com.vertx.web.demo.vertx_stock_broker.restapi.assets.model.Asset;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 
 public class AssetsRestApi {
@@ -14,10 +14,10 @@ public class AssetsRestApi {
     router.get("/assets").handler(routingContext -> {
       final JsonArray response = new JsonArray();
       response
-        .add(new JsonObject().put("symnbol", "AAPL"))
-        .add(new JsonObject().put("symnbol", "AMZN"))
-        .add(new JsonObject().put("symnbol", "NFLX"))
-        .add(new JsonObject().put("symnbol", "TSLA"));
+        .add(new Asset("AAPL"))
+        .add(new Asset("AMZN"))
+        .add(new Asset( "NFLX"))
+        .add(new Asset("TSLA"));
 
       LOG.info("Path ".concat(routingContext.normalizedPath()).concat(" responds with ").concat(response.encode()));
       routingContext.response().end(response.toBuffer());

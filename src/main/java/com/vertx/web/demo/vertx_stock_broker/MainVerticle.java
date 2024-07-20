@@ -6,10 +6,9 @@ import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
-import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 
 public class MainVerticle extends AbstractVerticle {
 
@@ -27,9 +26,9 @@ public class MainVerticle extends AbstractVerticle {
     });
   }
 
-  @Override
   public void start(Promise<Void> startPromise) throws Exception {
     final Router restApi = Router.router(vertx);
+    restApi.route().failureHandler(MainVerticle::handleFailure);
 
     AssetsRestApi.attach(restApi);
 
@@ -45,4 +44,16 @@ public class MainVerticle extends AbstractVerticle {
         }
       });
   }
+
+  private static void handleFailure(RoutingContext errorContext) {
+    if (errorContext.response().ended()) {
+      //Ignore completed response
+      return;
+    }
+    LOG.error("Router error: ", errorContext.failure());
+    errorContext.response()
+      .setStatusCode(500)
+      .end(new JsonObject().put("message", "Something went wrong").toBuffer());
+  }
+
 }
