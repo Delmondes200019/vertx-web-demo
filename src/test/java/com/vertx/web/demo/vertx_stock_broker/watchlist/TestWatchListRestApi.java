@@ -31,7 +31,7 @@ public class TestWatchListRestApi {
   }
 
   @Test
-  void add_and_return_watch_list_for_account(Vertx vertx, VertxTestContext testContext) throws Throwable {
+  void adds_and_returns_watch_list_for_account(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient webClient = WebClient.create(vertx, new WebClientOptions().setDefaultPort(MainVerticle.PORT));
     final UUID accountID = UUID.randomUUID();
 
@@ -53,6 +53,36 @@ public class TestWatchListRestApi {
           .onComplete(testContext.succeeding(bufferHttpResponse -> {
             JsonObject jsonObject = bufferHttpResponse.bodyAsJsonObject();
             LOG.info("Response GET: ".concat(jsonObject.encode()));
+            Assertions.assertEquals("{\"assets\":[{\"symbol\":\"AMZN\"},{\"symbol\":\"TSLA\"}]}", jsonObject.encode());
+            Assertions.assertEquals(200, bufferHttpResponse.statusCode());
+            testContext.completeNow();
+          }))
+      );
+  }
+
+  @Test
+  void add_and_deletes_watch_list_for_account(Vertx vertx, VertxTestContext testContext) throws Throwable {
+    WebClient webClient = WebClient.create(vertx, new WebClientOptions().setDefaultPort(MainVerticle.PORT));
+    final UUID accountID = UUID.randomUUID();
+
+    JsonObject requestBody = new WatchList(Arrays.asList(
+      new Asset("AMZN"),
+      new Asset("TSLA")
+    )).toJsonObject();
+
+    webClient.put("/account/watchlist/".concat(accountID.toString()))
+      .sendJsonObject(requestBody)
+      .onComplete(testContext.succeeding(httpResponseAsyncResult -> {
+        JsonObject jsonObject = httpResponseAsyncResult.bodyAsJsonObject();
+        LOG.info("Response: ".concat(jsonObject.encode()));
+        Assertions.assertEquals(requestBody.encode(), jsonObject.encode());
+        Assertions.assertEquals(200, httpResponseAsyncResult.statusCode());
+      })).compose(unused ->
+        webClient.delete("/account/watchlist/".concat(accountID.toString()))
+          .send()
+          .onComplete(testContext.succeeding(bufferHttpResponse -> {
+            JsonObject jsonObject = bufferHttpResponse.bodyAsJsonObject();
+            LOG.info("Response DELETE: ".concat(jsonObject.encode()));
             Assertions.assertEquals("{\"assets\":[{\"symbol\":\"AMZN\"},{\"symbol\":\"TSLA\"}]}", jsonObject.encode());
             Assertions.assertEquals(200, bufferHttpResponse.statusCode());
             testContext.completeNow();

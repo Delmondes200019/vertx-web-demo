@@ -6,6 +6,7 @@ import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,8 +23,8 @@ public class WatchListRestApi {
     final String path = "/account/watchlist/:accountId";
 
     router.get(path).handler(routingContext -> {
-      final String accountId = routingContext.pathParam("accountId");
-      LOG.debug(routingContext.normalizedPath().concat(" for account ").concat(accountId));
+      final String accountId = getAccountId(routingContext);
+      LOG.info(routingContext.normalizedPath().concat(" for account ").concat(accountId));
       Optional<WatchList> watchList = Optional.ofNullable(watchListPerAccount.get(UUID.fromString(accountId)));
 
       if (watchList.isEmpty()) {
@@ -40,8 +41,8 @@ public class WatchListRestApi {
     });
 
     router.put(path).handler(routingContext -> {
-      final String accountId = routingContext.pathParam("accountId");
-      LOG.debug(routingContext.normalizedPath().concat(" for account ").concat(accountId));
+      final String accountId = getAccountId(routingContext);
+      LOG.info(routingContext.normalizedPath().concat(" for account ").concat(accountId));
 
       JsonObject bodyAsJson = routingContext.body().asJsonObject();
       WatchList watchList = bodyAsJson.mapTo(WatchList.class);
@@ -49,8 +50,19 @@ public class WatchListRestApi {
 
       routingContext.response().end(bodyAsJson.toBuffer());
     });
-    router.delete(path).handler(routingContext -> {
 
+    router.delete(path).handler(routingContext -> {
+      final String accountId = getAccountId(routingContext);
+      LOG.info(routingContext.normalizedPath().concat(" for account ").concat(accountId));
+      WatchList deleted = watchListPerAccount.remove(UUID.fromString(accountId));
+      LOG.info("Deleted ".concat(deleted.toJsonObject().encode()).concat(", remaining: ")
+        .concat(watchListPerAccount.values().toString()));
+      routingContext.response()
+        .end(deleted.toJsonObject().toBuffer());
     });
+  }
+
+  private static String getAccountId(RoutingContext routingContext) {
+    return routingContext.pathParam("accountId");
   }
 }
