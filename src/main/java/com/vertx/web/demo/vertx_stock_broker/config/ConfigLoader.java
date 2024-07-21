@@ -18,6 +18,7 @@ public class ConfigLoader {
   private static final Logger LOG = LoggerFactory.getLogger(ConfigLoader.class);
   public static final String SERVER_PORT = "SERVER_PORT";
   private static final List<String> EXPOSED_ENV_VARIABLES = List.of(SERVER_PORT);
+  private static final String CONFIG_FILE = "application.yml";
 
   public static Future<BrokerConfig> load(Vertx vertx) {
     final JsonArray exposedKeys = new JsonArray();
@@ -32,9 +33,15 @@ public class ConfigLoader {
       .setType("sys")
       .setConfig(new JsonObject().put("cache", false));
 
+    ConfigStoreOptions configStoreOptionsYaml = new ConfigStoreOptions()
+      .setType("file")
+      .setFormat("yaml")
+      .setConfig(new JsonObject().put("path", CONFIG_FILE));
+
     ConfigRetriever configRetriever = ConfigRetriever.create(vertx, new ConfigRetrieverOptions()
+      .addStore(configStoreOptionsYaml) //less priority over the other config stores
       .addStore(configStoreOptionsSys)
-      .addStore(configStoreOptionsEnv));
+      .addStore(configStoreOptionsEnv)); //high priority over the other config stores
 
     return configRetriever.getConfig().map(BrokerConfig::from);
   }

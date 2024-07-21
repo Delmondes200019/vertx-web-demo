@@ -1,14 +1,12 @@
 package com.vertx.web.demo.vertx_stock_broker;
 
 import com.vertx.web.demo.vertx_stock_broker.config.ConfigLoader;
+import com.vertx.web.demo.vertx_stock_broker.config.VersionInfoVerticle;
 import com.vertx.web.demo.vertx_stock_broker.restapi.RestApiVerticle;
 import com.vertx.web.demo.vertx_stock_broker.restapi.assets.AssetsRestApi;
 import com.vertx.web.demo.vertx_stock_broker.restapi.quotes.QuotesRestApi;
 import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.WatchListRestApi;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
+import io.vertx.core.*;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonObject;
@@ -31,7 +29,15 @@ public class MainVerticle extends AbstractVerticle {
   }
 
   public void start(Promise<Void> startPromise) throws Exception {
-    vertx.deployVerticle(RestApiVerticle.class.getName(), new DeploymentOptions()
+    vertx.deployVerticle(VersionInfoVerticle.class.getName())
+      .onFailure(startPromise::fail)
+      .onSuccess(deploymentId -> LOG.info("Deployed ".concat(VersionInfoVerticle.class.getName()).concat("with id "
+        .concat(deploymentId))))
+      .compose(next -> deployRestApiVerticle(startPromise));
+  }
+
+  private Future<String> deployRestApiVerticle(Promise<Void> startPromise) {
+    return vertx.deployVerticle(RestApiVerticle.class.getName(), new DeploymentOptions()
         .setInstances(getAvailableProcessors()))
       .onFailure(startPromise::fail)
       .onSuccess(deploymentId -> {

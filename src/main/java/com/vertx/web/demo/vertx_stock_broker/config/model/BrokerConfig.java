@@ -14,15 +14,21 @@ import java.util.Optional;
 public class BrokerConfig {
 
   Integer serverPort;
+  String version;
 
   public static BrokerConfig from(final JsonObject config) {
     Optional<Integer> serverPort = Optional.ofNullable(config.getInteger(ConfigLoader.SERVER_PORT));
     if (serverPort.isEmpty()) {
       throw new RuntimeException(ConfigLoader.SERVER_PORT.concat(" not configured!"));
     }
+    Optional<String> version = Optional.ofNullable(config.getString("version"));
+    if(version.isEmpty()){
+      throw new RuntimeException("version is not configured in config file");
+    }
 
     return BrokerConfig.builder()
       .serverPort(serverPort.get())
+      .version(version.get())
       .build();
   }
 }
