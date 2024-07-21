@@ -1,6 +1,7 @@
 package com.vertx.web.demo.vertx_stock_broker.restapi;
 
-import com.vertx.web.demo.vertx_stock_broker.MainVerticle;
+import com.vertx.web.demo.vertx_stock_broker.config.ConfigLoader;
+import com.vertx.web.demo.vertx_stock_broker.config.model.BrokerConfig;
 import com.vertx.web.demo.vertx_stock_broker.restapi.assets.AssetsRestApi;
 import com.vertx.web.demo.vertx_stock_broker.restapi.quotes.QuotesRestApi;
 import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.WatchListRestApi;
@@ -19,10 +20,15 @@ public class RestApiVerticle extends AbstractVerticle {
 
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
-    startHttpServerAndAttachRoutes(startPromise);
+    ConfigLoader.load(vertx)
+      .onFailure(startPromise::fail)
+      .onSuccess(configuration -> {
+        LOG.info("Retrieved configuration: ".concat(configuration.toString()));
+        startHttpServerAndAttachRoutes(startPromise, configuration);
+      });
   }
 
-  private void startHttpServerAndAttachRoutes(Promise<Void> startPromise) {
+  private void startHttpServerAndAttachRoutes(Promise<Void> startPromise, BrokerConfig configuration) {
     final Router restApi = Router.router(vertx);
     restApi.route()
       .handler(BodyHandler.create())
@@ -35,10 +41,11 @@ public class RestApiVerticle extends AbstractVerticle {
     vertx.createHttpServer()
       .requestHandler(restApi)
       .exceptionHandler(throwable -> LOG.error("Http server error: ", throwable))
-      .listen(MainVerticle.PORT).onComplete(http -> {
+      .listen(configuration.getServerPort()).onComplete(http -> {
         if (http.succeeded()) {
           startPromise.complete();
-          LOG.info(Thread.currentThread().getName().concat(": HTTP server started on port 8888 "));
+          LOG.info(Thread.currentThread().getName().concat(": HTTP server started on port "
+            .concat(configuration.getServerPort().toString())));
         } else {
           startPromise.fail(http.cause());
         }
