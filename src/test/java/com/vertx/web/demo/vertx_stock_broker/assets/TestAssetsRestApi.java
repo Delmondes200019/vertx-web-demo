@@ -2,6 +2,7 @@ package com.vertx.web.demo.vertx_stock_broker.assets;
 
 import com.sun.tools.javac.Main;
 import com.vertx.web.demo.vertx_stock_broker.MainVerticle;
+import com.vertx.web.demo.vertx_stock_broker.config.ConfigLoader;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
@@ -18,18 +19,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(VertxExtension.class)
-public class TestAssetsRestApi {
+public class TestAssetsRestApi extends AbstractRestApiTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(TestAssetsRestApi.class);
 
-  @BeforeEach
-  void deploy_verticle(Vertx vertx, VertxTestContext testContext) {
-    vertx.deployVerticle(new MainVerticle()).onComplete(testContext.succeeding(id -> testContext.completeNow()));
-  }
-
   @Test
   void return_all_assets(Vertx vertx, VertxTestContext testContext) throws Throwable {
-    WebClient webClient = WebClient.create(vertx, new WebClientOptions().setDefaultPort(MainVerticle.PORT));
+    WebClient webClient = WebClient.create(vertx, new WebClientOptions()
+      .setDefaultPort(TEST_SERVER_PORT));
     webClient.get("/assets")
       .send()
       .onComplete(testContext.succeeding(httpResponseAsyncResult -> {

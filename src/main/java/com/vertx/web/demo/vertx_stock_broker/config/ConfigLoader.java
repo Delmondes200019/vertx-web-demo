@@ -24,12 +24,17 @@ public class ConfigLoader {
     EXPOSED_ENV_VARIABLES.forEach(exposedKeys::add);
     LOG.info("Fetch configuration for ".concat(exposedKeys.encode()));
 
-    ConfigStoreOptions configStoreOptions = new ConfigStoreOptions()
+    ConfigStoreOptions configStoreOptionsEnv = new ConfigStoreOptions()
       .setType("env")
       .setConfig(new JsonObject().put("keys", exposedKeys));
 
+    ConfigStoreOptions configStoreOptionsSys = new ConfigStoreOptions()
+      .setType("sys")
+      .setConfig(new JsonObject().put("cache", false));
+
     ConfigRetriever configRetriever = ConfigRetriever.create(vertx, new ConfigRetrieverOptions()
-      .addStore(configStoreOptions));
+      .addStore(configStoreOptionsSys)
+      .addStore(configStoreOptionsEnv));
 
     return configRetriever.getConfig().map(BrokerConfig::from);
   }

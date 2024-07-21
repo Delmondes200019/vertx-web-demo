@@ -1,6 +1,7 @@
 package com.vertx.web.demo.vertx_stock_broker.quotes;
 
 import com.vertx.web.demo.vertx_stock_broker.MainVerticle;
+import com.vertx.web.demo.vertx_stock_broker.assets.AbstractRestApiTest;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
@@ -18,18 +19,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(VertxExtension.class)
-public class TestQuotesRestApi {
+public class TestQuotesRestApi extends AbstractRestApiTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(TestQuotesRestApi.class);
 
-  @BeforeEach
-  void deploy_verticle(Vertx vertx, VertxTestContext testContext) {
-    vertx.deployVerticle(new MainVerticle()).onComplete(testContext.succeeding(id -> testContext.completeNow()));
-  }
-
   @Test
   void return_quote_for_asset(Vertx vertx, VertxTestContext testContext) throws Throwable {
-    WebClient webClient = WebClient.create(vertx, new WebClientOptions().setDefaultPort(MainVerticle.PORT));
+    WebClient webClient = getWebClient(vertx);
     webClient.get("/quotes/AMZN")
       .send()
       .onComplete(testContext.succeeding(httpResponseAsyncResult -> {
@@ -44,7 +40,7 @@ public class TestQuotesRestApi {
 
   @Test
   void return_not_found_for_unknown_asset(Vertx vertx, VertxTestContext testContext) throws Throwable {
-    WebClient webClient = WebClient.create(vertx, new WebClientOptions().setDefaultPort(MainVerticle.PORT));
+    WebClient webClient = getWebClient(vertx);
     webClient.get("/quotes/UNKNOWN")
       .send()
       .onComplete(testContext.succeeding(httpResponseAsyncResult -> {
@@ -55,5 +51,9 @@ public class TestQuotesRestApi {
         Assertions.assertEquals(404, httpResponseAsyncResult.statusCode());
         testContext.completeNow();
       }));
+  }
+
+  private static WebClient getWebClient(Vertx vertx) {
+    return WebClient.create(vertx, new WebClientOptions().setDefaultPort(TEST_SERVER_PORT));
   }
 }
