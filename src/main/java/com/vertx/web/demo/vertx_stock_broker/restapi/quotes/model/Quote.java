@@ -4,13 +4,14 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.vertx.web.demo.vertx_stock_broker.restapi.assets.model.Asset;
 import com.vertx.web.demo.vertx_stock_broker.restapi.quotes.model.serializer.MoneySerializer;
 import io.vertx.core.json.JsonObject;
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
 
 import java.math.BigDecimal;
 
-@Value
+@Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Quote {
 
   Asset asset;

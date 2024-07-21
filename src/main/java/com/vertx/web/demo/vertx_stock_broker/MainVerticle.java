@@ -2,6 +2,7 @@ package com.vertx.web.demo.vertx_stock_broker;
 
 import com.vertx.web.demo.vertx_stock_broker.restapi.assets.AssetsRestApi;
 import com.vertx.web.demo.vertx_stock_broker.restapi.quotes.QuotesRestApi;
+import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.WatchListRestApi;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -10,6 +11,7 @@ import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 
 public class MainVerticle extends AbstractVerticle {
 
@@ -30,10 +32,13 @@ public class MainVerticle extends AbstractVerticle {
 
   public void start(Promise<Void> startPromise) throws Exception {
     final Router restApi = Router.router(vertx);
-    restApi.route().failureHandler(MainVerticle::handleFailure);
+    restApi.route()
+      .handler(BodyHandler.create())
+      .failureHandler(MainVerticle::handleFailure);
 
     AssetsRestApi.attach(restApi);
     QuotesRestApi.attach(restApi);
+    WatchListRestApi.attach(restApi);
 
     vertx.createHttpServer()
       .requestHandler(restApi)
