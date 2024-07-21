@@ -3,8 +3,10 @@ package com.vertx.web.demo.vertx_stock_broker.watchlist;
 import com.vertx.web.demo.vertx_stock_broker.MainVerticle;
 import com.vertx.web.demo.vertx_stock_broker.restapi.assets.model.Asset;
 import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.model.WatchList;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonObject;
@@ -47,6 +49,7 @@ public class TestWatchListRestApi {
         LOG.info("Response: ".concat(jsonObject.encode()));
         Assertions.assertEquals(requestBody.encode(), jsonObject.encode());
         Assertions.assertEquals(200, httpResponseAsyncResult.statusCode());
+        Assertions.assertEquals(HttpHeaderValues.APPLICATION_JSON.toString(), httpResponseAsyncResult.getHeader(HttpHeaders.CONTENT_TYPE.toString()));
       })).compose(unused ->
         webClient.get("/account/watchlist/".concat(accountID.toString()))
           .send()
@@ -55,6 +58,7 @@ public class TestWatchListRestApi {
             LOG.info("Response GET: ".concat(jsonObject.encode()));
             Assertions.assertEquals("{\"assets\":[{\"symbol\":\"AMZN\"},{\"symbol\":\"TSLA\"}]}", jsonObject.encode());
             Assertions.assertEquals(200, bufferHttpResponse.statusCode());
+            Assertions.assertEquals(HttpHeaderValues.APPLICATION_JSON.toString(), bufferHttpResponse.getHeader(HttpHeaders.CONTENT_TYPE.toString()));
             testContext.completeNow();
           }))
       );

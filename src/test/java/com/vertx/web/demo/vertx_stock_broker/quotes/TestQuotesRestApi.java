@@ -1,7 +1,9 @@
 package com.vertx.web.demo.vertx_stock_broker.quotes;
 
 import com.vertx.web.demo.vertx_stock_broker.MainVerticle;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonArray;
@@ -35,6 +37,7 @@ public class TestQuotesRestApi {
         LOG.info("Response: ".concat(jsonObject.encode()));
         Assertions.assertEquals("{\"symbol\":\"AMZN\"}", jsonObject.getJsonObject("asset").encode());
         Assertions.assertEquals(200, httpResponseAsyncResult.statusCode());
+        Assertions.assertEquals(HttpHeaderValues.APPLICATION_JSON.toString(), httpResponseAsyncResult.getHeader(HttpHeaders.CONTENT_TYPE.toString()));
         testContext.completeNow();
       }));
   }

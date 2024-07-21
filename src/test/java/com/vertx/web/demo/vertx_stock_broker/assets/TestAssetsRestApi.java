@@ -2,7 +2,9 @@ package com.vertx.web.demo.vertx_stock_broker.assets;
 
 import com.sun.tools.javac.Main;
 import com.vertx.web.demo.vertx_stock_broker.MainVerticle;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonArray;
@@ -36,6 +38,7 @@ public class TestAssetsRestApi {
         Assertions.assertEquals("[{\"symbol\":\"AAPL\"},{\"symbol\":\"AMZN\"},{\"symbol\":\"FB\"},{\"symbol\":\"GOOG\"},{\"symbol\":\"MSFT\"},{\"symbol\":\"NFLX\"},{\"symbol\":\"TSLA\"}]",
           jsonArray.encode());
         Assertions.assertEquals(200, httpResponseAsyncResult.statusCode());
+        Assertions.assertEquals(HttpHeaderValues.APPLICATION_JSON.toString(), httpResponseAsyncResult.getHeader(HttpHeaders.CONTENT_TYPE.toString()));
         testContext.completeNow();
       }));
   }

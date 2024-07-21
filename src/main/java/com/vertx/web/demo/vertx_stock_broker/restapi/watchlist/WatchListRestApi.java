@@ -1,7 +1,9 @@
 package com.vertx.web.demo.vertx_stock_broker.restapi.watchlist;
 
 import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.model.WatchList;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonObject;
@@ -37,7 +39,9 @@ public class WatchListRestApi {
         return;
       }
 
-      routingContext.response().end(watchList.get().toJsonObject().toBuffer());
+      routingContext.response()
+        .putHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
+        .end(watchList.get().toJsonObject().toBuffer());
     });
 
     router.put(path).handler(routingContext -> {
@@ -48,7 +52,9 @@ public class WatchListRestApi {
       WatchList watchList = bodyAsJson.mapTo(WatchList.class);
       watchListPerAccount.put(UUID.fromString(accountId), watchList);
 
-      routingContext.response().end(bodyAsJson.toBuffer());
+      routingContext.response()
+        .putHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
+        .end(bodyAsJson.toBuffer());
     });
 
     router.delete(path).handler(routingContext -> {
@@ -58,6 +64,7 @@ public class WatchListRestApi {
       LOG.info("Deleted ".concat(deleted.toJsonObject().encode()).concat(", remaining: ")
         .concat(watchListPerAccount.values().toString()));
       routingContext.response()
+        .putHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
         .end(deleted.toJsonObject().toBuffer());
     });
   }
