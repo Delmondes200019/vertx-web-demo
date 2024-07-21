@@ -33,7 +33,8 @@ public class TestAssetsRestApi {
       .onComplete(testContext.succeeding(httpResponseAsyncResult -> {
         JsonArray jsonArray = httpResponseAsyncResult.bodyAsJsonArray();
         LOG.info("Response: ".concat(jsonArray.encode()));
-        Assertions.assertEquals("[{\"symbol\":\"AAPL\"},{\"symbol\":\"AMZN\"},{\"symbol\":\"NFLX\"},{\"symbol\":\"TSLA\"}]", jsonArray.encode());
+        Assertions.assertEquals("[{\"symbol\":\"AAPL\"},{\"symbol\":\"AMZN\"},{\"symbol\":\"FB\"},{\"symbol\":\"GOOG\"},{\"symbol\":\"MSFT\"},{\"symbol\":\"NFLX\"},{\"symbol\":\"TSLA\"}]",
+          jsonArray.encode());
         Assertions.assertEquals(200, httpResponseAsyncResult.statusCode());
         testContext.completeNow();
       }));

@@ -1,6 +1,7 @@
 package com.vertx.web.demo.vertx_stock_broker;
 
 import com.vertx.web.demo.vertx_stock_broker.restapi.assets.AssetsRestApi;
+import com.vertx.web.demo.vertx_stock_broker.restapi.quotes.QuotesRestApi;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -13,7 +14,7 @@ import io.vertx.ext.web.RoutingContext;
 public class MainVerticle extends AbstractVerticle {
 
   public static final int PORT = 8888;
-  private static Logger LOG = LoggerFactory.getLogger(MainVerticle.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MainVerticle.class);
 
   public static void main(String[] args) {
     Vertx vertx = Vertx.vertx();
@@ -32,6 +33,7 @@ public class MainVerticle extends AbstractVerticle {
     restApi.route().failureHandler(MainVerticle::handleFailure);
 
     AssetsRestApi.attach(restApi);
+    QuotesRestApi.attach(restApi);
 
     vertx.createHttpServer()
       .requestHandler(restApi)
