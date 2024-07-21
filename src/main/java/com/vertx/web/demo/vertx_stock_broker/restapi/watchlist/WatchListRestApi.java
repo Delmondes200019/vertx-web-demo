@@ -1,8 +1,10 @@
 package com.vertx.web.demo.vertx_stock_broker.restapi.watchlist;
 
+import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.handler.DeleteWatchListHandler;
+import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.handler.GetWatchListHandler;
+import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.handler.PutWatchListHandler;
 import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.model.WatchList;
 import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
@@ -12,7 +14,6 @@ import io.vertx.ext.web.RoutingContext;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 public class WatchListRestApi {
@@ -24,52 +25,12 @@ public class WatchListRestApi {
 
     final String path = "/account/watchlist/:accountId";
 
-    router.get(path).handler(routingContext -> {
-      final String accountId = getAccountId(routingContext);
-      LOG.info(routingContext.normalizedPath().concat(" for account ").concat(accountId));
-      Optional<WatchList> watchList = Optional.ofNullable(watchListPerAccount.get(UUID.fromString(accountId)));
-
-      if (watchList.isEmpty()) {
-        routingContext.response()
-          .setStatusCode(HttpResponseStatus.NOT_FOUND.code())
-          .end(new JsonObject()
-            .put("message", "watchlist for account ".concat(accountId).concat(" not available!"))
-            .put("path", routingContext.normalizedPath())
-            .toBuffer());
-        return;
-      }
-
-      routingContext.response()
-        .putHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
-        .end(watchList.get().toJsonObject().toBuffer());
-    });
-
-    router.put(path).handler(routingContext -> {
-      final String accountId = getAccountId(routingContext);
-      LOG.info(routingContext.normalizedPath().concat(" for account ").concat(accountId));
-
-      JsonObject bodyAsJson = routingContext.body().asJsonObject();
-      WatchList watchList = bodyAsJson.mapTo(WatchList.class);
-      watchListPerAccount.put(UUID.fromString(accountId), watchList);
-
-      routingContext.response()
-        .putHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
-        .end(bodyAsJson.toBuffer());
-    });
-
-    router.delete(path).handler(routingContext -> {
-      final String accountId = getAccountId(routingContext);
-      LOG.info(routingContext.normalizedPath().concat(" for account ").concat(accountId));
-      WatchList deleted = watchListPerAccount.remove(UUID.fromString(accountId));
-      LOG.info("Deleted ".concat(deleted.toJsonObject().encode()).concat(", remaining: ")
-        .concat(watchListPerAccount.values().toString()));
-      routingContext.response()
-        .putHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
-        .end(deleted.toJsonObject().toBuffer());
-    });
+    router.get(path).handler(new GetWatchListHandler(watchListPerAccount));
+    router.put(path).handler(new PutWatchListHandler(watchListPerAccount));
+    router.delete(path).handler(new DeleteWatchListHandler(watchListPerAccount));
   }
 
-  private static String getAccountId(RoutingContext routingContext) {
+  public static String getAccountId(RoutingContext routingContext) {
     return routingContext.pathParam("accountId");
   }
 }
