@@ -2,17 +2,11 @@ package com.vertx.web.demo.vertx_stock_broker;
 
 import com.vertx.web.demo.vertx_stock_broker.config.ConfigLoader;
 import com.vertx.web.demo.vertx_stock_broker.config.VersionInfoVerticle;
+import com.vertx.web.demo.vertx_stock_broker.config.migration.FlywayMigration;
 import com.vertx.web.demo.vertx_stock_broker.restapi.RestApiVerticle;
-import com.vertx.web.demo.vertx_stock_broker.restapi.assets.AssetsRestApi;
-import com.vertx.web.demo.vertx_stock_broker.restapi.quotes.QuotesRestApi;
-import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.WatchListRestApi;
 import io.vertx.core.*;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
-import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.BodyHandler;
 
 public class MainVerticle extends AbstractVerticle {
 
@@ -33,7 +27,15 @@ public class MainVerticle extends AbstractVerticle {
       .onFailure(startPromise::fail)
       .onSuccess(deploymentId -> LOG.info("Deployed ".concat(VersionInfoVerticle.class.getName()).concat("with id "
         .concat(deploymentId))))
+      .compose(s -> migrateDatabase())
+      .onFailure(startPromise::fail)
+      .onSuccess(deploymentID -> LOG.info("Migrated schema to the latest version!"))
       .compose(next -> deployRestApiVerticle(startPromise));
+  }
+
+  private Future<Void> migrateDatabase() {
+    return ConfigLoader.load(vertx)
+      .compose(config -> FlywayMigration.migrate(vertx, config.getDbConfig()));
   }
 
   private Future<String> deployRestApiVerticle(Promise<Void> startPromise) {
