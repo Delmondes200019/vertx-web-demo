@@ -1,0 +1,29 @@
+version: '3'
+services:
+  broker-db:
+    container_name: broker-db
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_DB: brokerdb
+      POSTGRES_USER: brokerdb
+      POSTGRES_PASSWORD: brokerdb
+      TZ: UTC
+    ports:
+      - "5432:5432"
+    volumes:
+      - vertxbroker-data:/var/lib/postgresql/data
+    networks:
+      - vertxbroker-net
+  adminer:
+    container_name: adminer
+    image: adminer:4
+    ports:
+      - "8081:8080"
+    networks:
+      vertxbroker-net:
+volumes:
+  vertxbroker-data:
+networks:
+  vertxbroker-net:
+    driver: bridge
+
