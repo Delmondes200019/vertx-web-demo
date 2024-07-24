@@ -7,11 +7,11 @@ import lombok.Value;
 @Builder
 public class DbConfig {
 
-  String host = "localhost";
-  int port = 5432;
-  String database = "brokerdb";
-  String user = "brokerdb";
-  String password = "brokerdb";
+  String host;
+  int port;
+  String database;
+  String user;
+  String password;
 
   @Override
   public String toString() {
