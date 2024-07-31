@@ -1,8 +1,5 @@
 package com.vertx.web.demo.vertx_stock_broker.assets;
 
-import com.sun.tools.javac.Main;
-import com.vertx.web.demo.vertx_stock_broker.MainVerticle;
-import com.vertx.web.demo.vertx_stock_broker.config.ConfigLoader;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpHeaders;
@@ -14,7 +11,6 @@ import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 

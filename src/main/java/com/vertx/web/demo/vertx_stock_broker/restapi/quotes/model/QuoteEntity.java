@@ -1,23 +1,17 @@
 package com.vertx.web.demo.vertx_stock_broker.restapi.quotes.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.vertx.web.demo.vertx_stock_broker.restapi.assets.model.Asset;
 import com.vertx.web.demo.vertx_stock_broker.restapi.quotes.model.serializer.MoneySerializer;
 import io.vertx.core.json.JsonObject;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class Quote {
+public class QuoteEntity {
 
-  Asset asset;
+  String asset;
 
   @JsonSerialize(using = MoneySerializer.class)
   BigDecimal bid;
@@ -25,6 +19,7 @@ public class Quote {
   @JsonSerialize(using = MoneySerializer.class)
   BigDecimal ask;
 
+  @JsonProperty("last_price")
   @JsonSerialize(using = MoneySerializer.class)
   BigDecimal lastPrice;
 
@@ -34,5 +29,4 @@ public class Quote {
   public JsonObject toJsonObject() {
     return JsonObject.mapFrom(this);
   }
-
 }

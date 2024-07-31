@@ -4,11 +4,8 @@ import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.handler.DeleteWat
 import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.handler.GetWatchListHandler;
 import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.handler.PutWatchListHandler;
 import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.model.WatchList;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 

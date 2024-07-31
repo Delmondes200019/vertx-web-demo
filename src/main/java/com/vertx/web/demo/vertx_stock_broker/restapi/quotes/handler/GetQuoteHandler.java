@@ -1,9 +1,8 @@
 package com.vertx.web.demo.vertx_stock_broker.restapi.quotes.handler;
 
-import com.vertx.web.demo.vertx_stock_broker.restapi.quotes.QuotesRestApi;
+import com.vertx.web.demo.vertx_stock_broker.restapi.help.RouteHelper;
 import com.vertx.web.demo.vertx_stock_broker.restapi.quotes.model.Quote;
 import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.impl.logging.Logger;
@@ -27,16 +26,11 @@ public class GetQuoteHandler implements Handler<RoutingContext> {
   @Override
   public void handle(RoutingContext routingContext) {
     final String assetParam = routingContext.pathParam("asset");
-    LOG.debug("Asset parameter: ".concat(assetParam));
+    LOG.info("Asset parameter: ".concat(assetParam));
 
     Optional<Quote> quote = Optional.ofNullable(cachedQuotes.get(assetParam));
     if (quote.isEmpty()) {
-      routingContext.response()
-        .setStatusCode(HttpResponseStatus.NOT_FOUND.code())
-        .end(new JsonObject()
-          .put("message", "quote for asset ".concat(assetParam).concat(" not available!"))
-          .put("path", routingContext.normalizedPath())
-          .toBuffer());
+      RouteHelper.notFound(routingContext, "quote for asset ".concat(assetParam).concat(" not available!"));
       return;
     }
 

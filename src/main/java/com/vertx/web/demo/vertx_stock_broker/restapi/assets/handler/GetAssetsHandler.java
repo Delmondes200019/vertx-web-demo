@@ -18,7 +18,8 @@ public class GetAssetsHandler implements Handler<RoutingContext> {
   public void handle(RoutingContext routingContext) {
     final JsonArray response = new JsonArray();
     AssetsRestApi.ASSETS.stream().map(Asset::new).forEach(response::add);
-    LOG.info(Thread.currentThread().getName().concat(": Path ".concat(routingContext.normalizedPath()).concat(" responds with ").concat(response.encode())));
+    LOG.info(Thread.currentThread().getName().concat(": Path ".concat(routingContext.normalizedPath())
+      .concat(" responds with ").concat(response.encode())));
     routingContext.response()
       .putHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
       .end(response.toBuffer());
