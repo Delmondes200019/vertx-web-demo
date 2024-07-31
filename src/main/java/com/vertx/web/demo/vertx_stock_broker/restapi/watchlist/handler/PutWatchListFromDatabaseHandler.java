@@ -13,7 +13,9 @@ import io.vertx.sqlclient.Pool;
 import io.vertx.sqlclient.templates.SqlTemplate;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PutWatchListFromDatabaseHandler implements Handler<RoutingContext> {
 
@@ -32,23 +34,20 @@ public class PutWatchListFromDatabaseHandler implements Handler<RoutingContext> 
     JsonObject body = routingContext.body().asJsonObject();
     WatchList watchList = body.mapTo(WatchList.class);
 
+    List<Map<String, Object>> parameterBatch = watchList.getAssets().stream()
+      .map(asset -> {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("account_id", accountId);
+        parameters.put("asset", asset.getSymbol());
+        return parameters;
+      }).collect(Collectors.toList());
 
-    watchList.getAssets().forEach(asset -> {
-      Map<String, Object> parameters = new HashMap<>();
-      parameters.put("account_id", accountId);
-      parameters.put("asset", asset.getSymbol());
-
-      SqlTemplate.forUpdate(db,
-          "INSERT INTO broker.watchlist VALUES(#{account_id}, #{asset})")
-        .execute(parameters)
-        .onFailure(RouteHelper.errorHandler(routingContext, "Failed to insert into watchlist"))
-        .onSuccess(result -> {
-          if (!routingContext.response().ended()) {
-            routingContext.response()
-              .setStatusCode(HttpResponseStatus.NO_CONTENT.code())
-              .end();
-          }
-        });
-    });
+    SqlTemplate.forUpdate(db,
+        "INSERT INTO broker.watchlist VALUES(#{account_id}, #{asset}) ON CONFLICT DO NOTHING")
+      .executeBatch(parameterBatch)
+      .onFailure(RouteHelper.errorHandler(routingContext, "Failed to insert into watchlist"))
+      .onSuccess(result -> routingContext.response()
+        .setStatusCode(HttpResponseStatus.NO_CONTENT.code())
+        .end());
   }
 }
