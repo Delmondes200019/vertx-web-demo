@@ -1,9 +1,6 @@
 package com.vertx.web.demo.vertx_stock_broker.restapi.watchlist;
 
-import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.handler.DeleteWatchListHandler;
-import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.handler.GetWatchListFromDatabaseHandler;
-import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.handler.GetWatchListHandler;
-import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.handler.PutWatchListHandler;
+import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.handler.*;
 import com.vertx.web.demo.vertx_stock_broker.restapi.watchlist.model.WatchList;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
@@ -31,6 +28,7 @@ public class WatchListRestApi {
     final String pgPath = "/pg/account/watchlist/:accountId";
 
     router.get(pgPath).handler(new GetWatchListFromDatabaseHandler(pool));
+    router.put(pgPath).handler(new PutWatchListFromDatabaseHandler(pool));
   }
 
   public static String getAccountId(RoutingContext routingContext) {
