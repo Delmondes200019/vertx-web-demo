@@ -29,6 +29,7 @@ public class WatchListRestApi {
 
     router.get(pgPath).handler(new GetWatchListFromDatabaseHandler(pool));
     router.put(pgPath).handler(new PutWatchListFromDatabaseHandler(pool));
+    router.delete(pgPath).handler(new DeleteWatchListDatabaseHandler(pool));
   }
 
   public static String getAccountId(RoutingContext routingContext) {
